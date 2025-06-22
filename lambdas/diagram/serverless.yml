@@ -57,41 +57,69 @@ resources:
 functions:
 
   diagram_upload:
-    handler: diagram/diagram_upload.lambda_handler
+    handler: diagram_upload.lambda_handler
     events:
       - http:
           path: "diagram/upload"
           method: post
           cors: true
+    package:
+      include:
+        - diagram_upload.py
+        - utils.py
 
   diagram_url_upload:
-    handler: diagram/diagram_url_upload.lambda_handler
+    handler: diagram_url_upload.lambda_handler
     events:
       - http:
           path: "diagram/url/upload"
           method: post
           cors: true
-
+    package:
+      include:
+        - diagram_url_upload.py
+        - utils.py
   diagram_download:
-    handler: diagram/diagram_download.lambda_handler
+    handler: diagram_download.lambda_handler
     events:
       - http:
           path: "diagram/download"
           method: get
           cors: true
-
+    package:
+      include:
+        - diagram_download.py
+        - utils.py
   diagram_delete:
-    handler: diagram/diagram_delete.lambda_handler
+    handler: diagram_delete.lambda_handler
     events:
       - http:
           path: "diagram/delete"
           method: post
           cors: true
-
+    package:
+      include:
+        - diagram_delete.py
+        - utils.py
   diagram_request:
-    handler: diagram/diagram_request.lambda_handler
+    handler: diagram_request.lambda_handler
     events:
       - http:
           path: "diagram/get"
           method: get
           cors: true
+    package:
+      include:
+        - diagram_request.py
+        - utils.py
+  diagram_generate:
+    handler: diagram_generate.lambda_handler
+    events:
+      - http:
+          path: "diagram/generate"
+          method: post
+          cors: true
+    package:
+      include:
+        - diagram_generate.py
+        - utils.py

@@ -14,7 +14,10 @@ def lambda_handler(event, context):
     if not token or not tenant_id:
         return {
             'statusCode': 400,
-            'body': 'Missing required parameters: token, tenant_id.'
+            'body': json.dumps({'error': 'Missing required parameters: token, tenant_id.'}),
+            'headers': {
+                'Content-Type': 'application/json'
+            }
         }
 
     dynamodb = boto3.resource('dynamodb')
@@ -29,12 +32,16 @@ def lambda_handler(event, context):
     )
 
     if 'Item' not in response:
+        # Token inválido → no devolver Authorization
         return {
             'statusCode': 400,
-            'body': 'Token not found or already logged out.'
+            'body': json.dumps({'error': 'Token not found or already logged out.'}),
+            'headers': {
+                'Content-Type': 'application/json'
+            }
         }
 
-    # Eliminar el token
+    # Token válido → eliminar
     table_auth.delete_item(
         Key={
             'token': token,
@@ -42,7 +49,12 @@ def lambda_handler(event, context):
         }
     )
 
+    # Token válido → devolver Authorization
     return {
         'statusCode': 200,
-        'body': 'User logout successfully.'
+        'body': json.dumps({'message': 'User logout successfully.'}),
+        'headers': {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {token}'
+        }
     }

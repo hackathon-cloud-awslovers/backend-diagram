@@ -52,7 +52,7 @@ resources:
 
 functions:
     user_login:
-        handler: user/user_login.lambda_handler
+        handler: user_login.lambda_handler
         events:
         - http:
             path: "user/login"
@@ -60,7 +60,7 @@ functions:
             cors: true
 
     user_logout:
-        handler: user/user_logout.lambda_handler
+        handler: user_logout.lambda_handler
         events:
         - http:
             path: "user/logout"
@@ -68,9 +68,17 @@ functions:
             cors: true
 
     user_register:
-        handler: user/user_register.lambda_handler
+        handler: user_register.lambda_handler
         events:
         - http:
             path: "user/register"
+            method: post
+            cors: true
+
+    user_validate:
+      handler: user_validate.lambda_handler
+      events:
+        - http:
+            path: "user/validate"
             method: post
             cors: true

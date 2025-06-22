@@ -1,9 +1,9 @@
-
 from datetime import datetime, timedelta
 
 import boto3
 import bcrypt
 import os
+import json
 
 # Expire time
 expire_time = timedelta(hours=5)
@@ -11,7 +11,6 @@ expire_time = timedelta(hours=5)
 # Hashear contraseña
 def verify_password(password, hashed):
     return bcrypt.checkpw(password.encode(), hashed.encode())
-
 
 def lambda_handler(event, context):
     """
@@ -23,10 +22,11 @@ def lambda_handler(event, context):
     user_id = event.get('user_id')
     tenant_id = event.get('tenant_id')
     password = event.get('password')
+
     if not user_id or not tenant_id or not password:
         return {
             'statusCode': 400,
-            'body': 'Missing required parameters: user_id, tenant_id, or password.'
+            'body': json.dumps({'error': 'Missing required parameters: user_id, tenant_id, or password.'})
         }
 
     dynamodb = boto3.resource('dynamodb')
@@ -43,32 +43,40 @@ def lambda_handler(event, context):
     if 'Item' not in response:
         return {
             'statusCode': 404,
-            'body': 'User not found.'
+            'body': json.dumps({'error': 'User not found.'})
         }
 
     db_password = response['Item'].get('password')
-    if verify_password(db_password, password):
+
+    # La verificación estaba al revés
+    if not verify_password(password, db_password):
         return {
             'statusCode': 403,
-            'body': 'Wrong password.'
+            'body': json.dumps({'error': 'Wrong password.'})
         }
 
     # Create an auth token
     token = bcrypt.gensalt().decode()
+    expiration_time = (datetime.now() + expire_time).isoformat()
 
     table_auth.put_item(
         Item={
             'token': token,
             'tenant_id': tenant_id,
             'user_id': user_id,
-            'expires_at': (datetime.now() + expire_time).isoformat()
+            'expires_at': expiration_time
         }
     )
 
+    # Devolver token en body + header
     return {
         'statusCode': 200,
-        'body': {
+        'body': json.dumps({
             'token': token,
-            'expires_at': (datetime.now() + expire_time).isoformat()
+            'expires_at': expiration_time
+        }),
+        'headers': {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {token}'
         }
     }
