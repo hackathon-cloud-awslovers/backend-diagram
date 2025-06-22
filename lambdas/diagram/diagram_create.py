@@ -1,7 +1,7 @@
 import boto3
 import os
 import json
-from utils import validate_token
+from utils import validate_token, load_body
 
 def lambda_handler(event, context):
     """
@@ -12,7 +12,7 @@ def lambda_handler(event, context):
     table_auth_name = os.environ['TABLE_AUTH']  # <- se necesita la tabla auth
 
     # Parse body
-    body = json.loads(event.get('body', '{}'))
+    body = load_body(event)
 
     tenant_id = body.get('tenant_id')
     diagram_id = body.get('diagram_id')

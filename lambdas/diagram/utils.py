@@ -35,3 +35,12 @@ def validate_token(token, tenant_id):
         raise Exception('Token inválido o expirado')
 
     return True
+
+def load_body(event):
+    if 'body' not in event:
+        return event
+
+    if isinstance(event["body"], dict):
+        return event['body']
+    else:
+        return json.loads(event['body'])
