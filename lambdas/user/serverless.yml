@@ -10,8 +10,8 @@ provider:
   runtime: python3.9
   region: us-east-1
   stage: dev
-  iam:
-    role: arn:aws:iam::107956752347:role/LabRole
+  #iam:
+    #role: arn:aws:iam::107956752347:role/LabRole
   environment:
     TABLE_AUTH: ${self:custom.tableAuth}
     TABLE_USER: ${self:custom.tableUser}

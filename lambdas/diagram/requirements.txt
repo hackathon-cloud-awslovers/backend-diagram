@@ -1,3 +1,4 @@
 boto3
 requests
-diagrams
+diagrams-as-code
+eralchemy
