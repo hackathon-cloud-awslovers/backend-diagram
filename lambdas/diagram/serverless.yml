@@ -1,0 +1,88 @@
+org: salvadordonayre
+service: hack-diagram-service
+
+provider:
+  name: aws
+  runtime: python3.9
+  region: us-east-1
+  stage: dev
+  iam:
+    role: arn:aws:iam::107956752347:role/LabRole
+  environment:
+    TABLE_DIAGRAM: ${self:custom.tableDiagram}
+    S3_BUCKET_DIAGRAM: ${self:custom.S3_BUCKET_DIAGRAM}
+
+custom:
+  tableDiagram: d_diagrams_${sls:stage}
+  S3_BUCKET_DIAGRAM: d_diagrams_s3_${sls:stage}
+
+resources:
+  Resources:
+    DiagramTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.tableDiagram}
+        AttributeDefinitions:
+          - AttributeName: tenant_id
+            AttributeType: S
+          - AttributeName: diagram_id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: tenant_id
+            KeyType: HASH
+          - AttributeName: diagram_id
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+    DiagramS3Bucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom.S3_BUCKET_DIAGRAM}
+        VersioningConfiguration:
+          Status: Enabled
+        LifecycleConfiguration:
+          Rules:
+            - Id: "ExpireOldDiagrams"
+              Status: Enabled
+              ExpirationInDays: 365
+
+
+functions:
+    diagram_request:
+        handler: diagram/diagram_request.lambda_handler
+        events:
+        - http:
+            path: "diagram/get"
+            method: get
+            cors: true
+
+    diagram_upload:
+        handler: diagram/diagram_upload.lambda_handler
+        events:
+        - http:
+            path: "diagram/upload"
+            method: post
+            cors: true
+
+    diagram_delete:
+        handler: diagram/diagram_delete.lambda_handler
+        events:
+        - http:
+            path: "diagram/delete"
+            method: post
+            cors: true
+
+    diagram_url_upload:
+        handler: diagram/diagram_url_upload.lambda_handler
+        events:
+        - http:
+            path: "diagram/url/upload"
+            method: post
+            cors: true
+
+    diagram_download:
+        handler: diagram/diagram_download.lambda_handler
+        events:
+        - http:
+            path: "diagram/download"
+            method: get
+            cors: true

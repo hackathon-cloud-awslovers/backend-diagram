@@ -1,0 +1,76 @@
+org: salvadordonayre
+service: hack-user-service
+
+custom:
+  tableUser: d_users_${sls:stage}
+  tableAuth: d_auth_${sls:stage}
+
+provider:
+  name: aws
+  runtime: python3.9
+  region: us-east-1
+  stage: dev
+  iam:
+    role: arn:aws:iam::107956752347:role/LabRole
+  environment:
+    TABLE_AUTH: ${self:custom.tableAuth}
+    TABLE_USER: ${self:custom.tableUser}
+
+resources:
+  Resources:
+    UserTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.tableUser}
+        AttributeDefinitions:
+          - AttributeName: tenant_id
+            AttributeType: S
+          - AttributeName: user_id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: tenant_id
+            KeyType: HASH
+          - AttributeName: user_id
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+
+    AuthTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.tableAuth}
+        AttributeDefinitions:
+          - AttributeName: token
+            AttributeType: S
+          - AttributeName: tenant_id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: token
+            KeyType: HASH
+          - AttributeName: tenant_id
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+
+functions:
+    user_login:
+        handler: user/user_login.lambda_handler
+        events:
+        - http:
+            path: "user/login"
+            method: post
+            cors: true
+
+    user_logout:
+        handler: user/user_logout.lambda_handler
+        events:
+        - http:
+            path: "user/logout"
+            method: post
+            cors: true
+
+    user_register:
+        handler: user/user_register.lambda_handler
+        events:
+        - http:
+            path: "user/register"
+            method: post
+            cors: true
