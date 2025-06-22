@@ -54,18 +54,6 @@ def lambda_handler(event, context):
         }
     )
 
-    # Create an auth token
-    token = bcrypt.gensalt().decode()
-    # Store the auth token
-    table_auth.put_item(
-        Item={
-            'token': token,
-            'tenant_id': tenant_id,
-            'user_id': user_id,
-            'expire_time': (context.get_remaining_time_in_millis() + expire_time.total_seconds() * 1000)
-        }
-    )
-
     # Return success response
     return {
         'statusCode': 200,

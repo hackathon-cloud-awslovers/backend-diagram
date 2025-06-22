@@ -59,7 +59,7 @@ def lambda_handler(event, context):
             'body': json.dumps('Token no corresponde al tenant')
         }
 
-    expires = item.get('expires')
+    expires = item.get('expires_at')
     print('Token expires at:', expires)
 
     # Current time in same format
