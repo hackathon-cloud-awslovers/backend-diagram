@@ -2,6 +2,15 @@ import json
 import boto3
 import os
 
+def load_body(event):
+    if 'body' not in event:
+        return event
+
+    if isinstance(event["body"], dict):
+        return event['body']
+    else:
+        return json.loads(event['body'])
+
 def lambda_handler(event, context):
     table_auth_name = os.environ['TABLE_AUTH']
 
@@ -14,7 +23,7 @@ def lambda_handler(event, context):
         token = None
 
     # Leer tenant_id del body
-    body = json.loads(event.get('body', '{}'))
+    body = load_body(event)
     tenant_id = body.get('tenant_id')
 
     if not token or not tenant_id:
