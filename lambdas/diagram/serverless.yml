@@ -9,6 +9,7 @@ provider:
   iam:
     role: arn:aws:iam::107956752347:role/LabRole
   environment:
+    auth_lambda: ${self:custom.auth_lambda}
     TABLE_DIAGRAM: ${self:custom.tableDiagram}
     S3_BUCKET_DIAGRAM: ${self:custom.S3_BUCKET_DIAGRAM}
 
@@ -22,6 +23,7 @@ provider:
 
 custom:
   tableDiagram: d_diagrams_${sls:stage}
+  auth_lambda: hack-user-service-${sls:stage}-user_validat
   S3_BUCKET_DIAGRAM: d_diagrams_s3_${sls:stage}
 
 resources:
@@ -63,6 +65,7 @@ functions:
           path: "diagram/upload"
           method: post
           cors: true
+          integration: lambda
     package:
       include:
         - diagram_upload.py
@@ -75,6 +78,7 @@ functions:
           path: "diagram/url/upload"
           method: post
           cors: true
+          integration: lambda
     package:
       include:
         - diagram_url_upload.py
@@ -86,6 +90,7 @@ functions:
           path: "diagram/download"
           method: get
           cors: true
+          integration: lambda
     package:
       include:
         - diagram_download.py
@@ -97,6 +102,7 @@ functions:
           path: "diagram/delete"
           method: post
           cors: true
+          integration: lambda
     package:
       include:
         - diagram_delete.py
@@ -108,6 +114,7 @@ functions:
           path: "diagram/get"
           method: get
           cors: true
+          integration: lambda
     package:
       include:
         - diagram_request.py
@@ -119,6 +126,7 @@ functions:
           path: "diagram/generate"
           method: post
           cors: true
+          integration: lambda
     package:
       include:
         - diagram_generate.py

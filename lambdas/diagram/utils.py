@@ -9,17 +9,20 @@ def validate_token(token, tenant_id):
     lambda_client = boto3.client('lambda')
 
     payload = {
-        'token': token,
         'tenant_id': tenant_id
     }
 
-    stage = os.environ.get('STAGE', 'dev')
-    validate_lambda_name = f'hack-user-service-{stage}-user-validate'
+    validate_lambda_name = os.environ.get("auth_lambda")
 
     response = lambda_client.invoke(
         FunctionName=validate_lambda_name,
         InvocationType='RequestResponse',
-        Payload=json.dumps(payload).encode('utf-8')
+        Payload=json.dumps({
+            'headers': {
+                'Authorization': f'Bearer {token}'
+            },
+            'body': json.dumps(payload)
+        }).encode('utf-8')
     )
 
     result_payload = json.loads(response['Payload'].read().decode('utf-8'))
