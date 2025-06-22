@@ -4,6 +4,7 @@ import boto3
 import bcrypt
 import os
 import json
+import secrets
 
 # Expire time
 expire_time = timedelta(hours=5)
@@ -12,6 +13,8 @@ expire_time = timedelta(hours=5)
 def verify_password(password, hashed):
     return bcrypt.checkpw(password.encode(), hashed.encode())
 
+def generate_token():
+    return secrets.token_urlsafe(32)
 
 def load_body(event):
     if 'body' not in event:
@@ -68,7 +71,7 @@ def lambda_handler(event, context):
         }
 
     # Create an auth token
-    token = bcrypt.gensalt().decode()
+    token = generate_token()
     expiration_time = (datetime.now() + expire_time).isoformat()
 
     table_auth.put_item(
