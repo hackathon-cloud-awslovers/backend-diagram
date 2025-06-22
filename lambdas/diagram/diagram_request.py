@@ -11,8 +11,18 @@ def lambda_handler(event, context):
     table_diagram_name = os.environ['TABLE_DIAGRAM']
     table_auth_name = os.environ['TABLE_AUTH']
 
-    # For GET requests → queryStringParameters
-    params = event.get('queryStringParameters', {}) or {}
+    # Log completo
+    print('Full Event:', json.dumps(event))
+
+    # Manejo robusto para GET
+    params = event.get('queryStringParameters') or {}
+
+    # fallback en caso de rawQueryString (HTTP API v2)
+    if not params and 'rawQueryString' in event:
+        import urllib.parse
+        params = urllib.parse.parse_qs(event['rawQueryString'])
+        # parse_qs da listas
+        params = {k: v[0] for k, v in params.items()}
 
     tenant_id = params.get('tenant_id')
     diagram_id = params.get('diagram_id')
