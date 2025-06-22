@@ -1,10 +1,12 @@
 FROM public.ecr.aws/lambda/python:3.9
 
-# Install system dependencies (Graphviz + unzip + wget)
+# Install system dependencies
 RUN yum install -y graphviz unzip wget
 
-# Install D2 binary
-RUN wget https://github.com/terrastruct/d2/releases/latest/download/d2-linux-amd64.tar.gz -O /tmp/d2.tar.gz \
+# Install D2 binary (update version here!)
+ENV D2_VERSION=v0.8.4
+
+RUN wget https://github.com/terrastruct/d2/releases/download/v0.7.0/d2-v0.7.0-linux-amd64.tar.gz -O /tmp/d2.tar.gz \
     && mkdir -p /opt/bin \
     && tar -xzf /tmp/d2.tar.gz -C /opt/bin \
     && chmod +x /opt/bin/d2
