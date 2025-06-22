@@ -4,7 +4,7 @@ FROM public.ecr.aws/lambda/python:3.9
 RUN yum install -y graphviz unzip wget tar gzip && yum clean all
 
 # Instalar D2 binary (puedes cambiar la versión fácilmente)
-ENV D2_VERSION=v0.8.4
+ENV D2_VERSION=v0.7.0
 
 RUN wget https://github.com/terrastruct/d2/releases/download/${D2_VERSION}/d2-${D2_VERSION}-linux-amd64.tar.gz -O /tmp/d2.tar.gz \
     && mkdir -p /opt/bin \
