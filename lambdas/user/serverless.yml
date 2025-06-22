@@ -1,7 +1,16 @@
 org: salvadordonayre
 service: hack-user-service
 
+plugins:
+  - serverless-python-requirements
+
 custom:
+  pythonRequirements:
+    dockerizePip: true
+    layer: false
+    useDownloadCache: false
+    useStaticCache: false
+
   tableUser: d_users_${sls:stage}
   tableAuth: d_auth_${sls:stage}
 
