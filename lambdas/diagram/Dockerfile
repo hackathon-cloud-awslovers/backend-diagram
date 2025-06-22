@@ -11,6 +11,8 @@ RUN wget https://github.com/terrastruct/d2/releases/download/${D2_VERSION}/d2-${
     && tar -xzf /tmp/d2.tar.gz -C /opt/bin \
     && chmod +x /opt/bin/d2-v0.7.0/bin/d2
 
+ln -s /opt/bin/d2-v0.7.0/bin/d2 /opt/bin/d2
+
 # Agregar D2 al PATH
 ENV PATH="/opt/bin:${PATH}"
 
