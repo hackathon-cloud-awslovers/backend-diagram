@@ -50,7 +50,7 @@ def lambda_handler(event, context):
         # Token inválido → no devolver Authorization
         return {
             'statusCode': 400,
-            'body': json.dumps({'error': 'Token not found or already logged out.'}),
+            'body': {'error': 'Token not found or already logged out.'},
             'headers': {
                 'Content-Type': 'application/json'
             }
@@ -67,7 +67,7 @@ def lambda_handler(event, context):
     # Token válido → devolver Authorization
     return {
         'statusCode': 200,
-        'body': json.dumps({'message': 'User logout successfully.'}),
+        'body': {'message': 'User logout successfully.'},
         'headers': {
             'Content-Type': 'application/json',
             'Authorization': f'Bearer {token}'
