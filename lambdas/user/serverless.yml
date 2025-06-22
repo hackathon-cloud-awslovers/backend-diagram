@@ -67,6 +67,7 @@ functions:
             path: "user/login"
             method: post
             cors: true
+            integration: lambda
 
     user_logout:
         handler: user_logout.lambda_handler
@@ -75,6 +76,7 @@ functions:
             path: "user/logout"
             method: post
             cors: true
+            integration: lambda
 
     user_register:
         handler: user_register.lambda_handler
@@ -83,6 +85,7 @@ functions:
             path: "user/register"
             method: post
             cors: true
+            integration: lambda
 
     user_validate:
       handler: user_validate.lambda_handler
@@ -91,3 +94,4 @@ functions:
             path: "user/validate"
             method: post
             cors: true
+            integration: lambda
