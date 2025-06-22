@@ -15,7 +15,8 @@ provider:
   environment:
     TABLE_AUTH: ${self:custom.tableAuth}
     TABLE_USER: ${self:custom.tableUser}
-
+  layers:
+    - arn:aws:lambda:us-east-1:905418975557:layer:python-bcrypt:7
 resources:
   Resources:
     UserTable:
