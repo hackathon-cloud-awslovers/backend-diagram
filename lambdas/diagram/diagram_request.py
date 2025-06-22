@@ -15,7 +15,7 @@ def lambda_handler(event, context):
     print('Full Event:', json.dumps(event))
 
     # Manejo robusto para GET
-    params = event.get('queryStringParameters') or {}
+    params = event.get('query') or {}
 
     # fallback en caso de rawQueryString (HTTP API v2)
     if not params and 'rawQueryString' in event:
