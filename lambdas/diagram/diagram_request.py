@@ -30,7 +30,7 @@ def lambda_handler(event, context):
     if not tenant_id or not diagram_id:
         return {
             'statusCode': 400,
-            'body': json.dumps({'error': 'Missing required parameters: tenant_id, diagram_id.'}),
+            'body': {'error': 'Missing required parameters: tenant_id, diagram_id.'},
             'headers': {
                 'Content-Type': 'application/json'
             }
@@ -41,7 +41,7 @@ def lambda_handler(event, context):
     if not auth_header or not auth_header.startswith('Bearer '):
         return {
             'statusCode': 400,
-            'body': json.dumps({'error': 'Missing or invalid Authorization header.'}),
+            'body': {'error': 'Missing or invalid Authorization header.'},
             'headers': {
                 'Content-Type': 'application/json'
             }
@@ -54,7 +54,7 @@ def lambda_handler(event, context):
     except Exception as e:
         return {
             'statusCode': 403,
-            'body': json.dumps({'error': str(e)}),
+            'body': {'error': str(e)},
             'headers': {
                 'Content-Type': 'application/json'
             }
@@ -72,7 +72,7 @@ def lambda_handler(event, context):
     if 'Item' not in response:
         return {
             'statusCode': 403,
-            'body': json.dumps({'error': 'Token not found.'}),
+            'body': {'error': 'Token not found.'},
             'headers': {
                 'Content-Type': 'application/json'
             }
@@ -92,7 +92,7 @@ def lambda_handler(event, context):
     if 'Item' not in response:
         return {
             'statusCode': 404,
-            'body': json.dumps({'error': f'Diagram {diagram_id} not found for tenant {tenant_id}.'}),
+            'body': {'error': f'Diagram {diagram_id} not found for tenant {tenant_id}.'},
             'headers': {
                 'Content-Type': 'application/json'
             }
@@ -102,10 +102,10 @@ def lambda_handler(event, context):
 
     return {
         'statusCode': 200,
-        'body': json.dumps({
+        'body': {
             'diagram': diagram_item,
             'user_id': user_id
-        }),
+        },
         'headers': {
             'Content-Type': 'application/json'
         }
