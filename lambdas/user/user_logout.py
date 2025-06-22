@@ -5,16 +5,22 @@ import os
 def lambda_handler(event, context):
     table_auth_name = os.environ['TABLE_AUTH']
 
-    # Parse POST body
-    body = json.loads(event.get('body', '{}'))
+    # Leer token del header
+    auth_header = event['headers'].get('Authorization') or event['headers'].get('authorization')
 
-    token = body.get('token')
+    if auth_header and auth_header.startswith('Bearer '):
+        token = auth_header.split(' ')[1]
+    else:
+        token = None
+
+    # Leer tenant_id del body
+    body = json.loads(event.get('body', '{}'))
     tenant_id = body.get('tenant_id')
 
     if not token or not tenant_id:
         return {
             'statusCode': 400,
-            'body': json.dumps({'error': 'Missing required parameters: token, tenant_id.'}),
+            'body': json.dumps({'error': 'Missing required parameters: token (Authorization header), tenant_id.'}),
             'headers': {
                 'Content-Type': 'application/json'
             }
