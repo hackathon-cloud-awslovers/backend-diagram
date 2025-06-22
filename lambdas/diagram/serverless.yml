@@ -126,7 +126,7 @@ functions:
     handler: diagram_request.lambda_handler
     events:
       - http:
-          path: "diagram/get"
+          path: "diagram/request"
           method: get
           cors: true
           integration: lambda
