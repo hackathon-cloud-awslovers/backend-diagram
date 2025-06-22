@@ -59,6 +59,19 @@ resources:
               ExpirationInDays: 365
 
 functions:
+  diagram_create:
+    handler: diagram_create.lambda_handler
+    events:
+      - http:
+          path: "diagram/create"
+          method: post
+          cors: true
+          integration: lambda
+    package:
+      include:
+        - diagram_create.py
+        - utils.py
+
 
   diagram_upload:
     handler: diagram_upload.lambda_handler
