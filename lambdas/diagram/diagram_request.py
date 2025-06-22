@@ -5,6 +5,7 @@ def lambda_handler(event, context):
     Lambda function to get a diagram.
     """
 
+
     diagram_id = event.get('diagram_id')
     tenant_id = event.get('tenant_id')
 

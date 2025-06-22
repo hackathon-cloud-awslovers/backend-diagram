@@ -12,6 +12,14 @@ provider:
     TABLE_DIAGRAM: ${self:custom.tableDiagram}
     S3_BUCKET_DIAGRAM: ${self:custom.S3_BUCKET_DIAGRAM}
 
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - s3:PutObject
+        - s3:GetObject
+        - s3:DeleteObject
+      Resource: arn:aws:s3:::${self:custom.S3_BUCKET_DIAGRAM}/*
+
 custom:
   tableDiagram: d_diagrams_${sls:stage}
   S3_BUCKET_DIAGRAM: d_diagrams_s3_${sls:stage}
@@ -33,6 +41,7 @@ resources:
           - AttributeName: diagram_id
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
+
     DiagramS3Bucket:
       Type: AWS::S3::Bucket
       Properties:
@@ -45,44 +54,44 @@ resources:
               Status: Enabled
               ExpirationInDays: 365
 
-
 functions:
-    diagram_request:
-        handler: diagram/diagram_request.lambda_handler
-        events:
-        - http:
-            path: "diagram/get"
-            method: get
-            cors: true
 
-    diagram_upload:
-        handler: diagram/diagram_upload.lambda_handler
-        events:
-        - http:
-            path: "diagram/upload"
-            method: post
-            cors: true
+  diagram_upload:
+    handler: diagram/diagram_upload.lambda_handler
+    events:
+      - http:
+          path: "diagram/upload"
+          method: post
+          cors: true
 
-    diagram_delete:
-        handler: diagram/diagram_delete.lambda_handler
-        events:
-        - http:
-            path: "diagram/delete"
-            method: post
-            cors: true
+  diagram_url_upload:
+    handler: diagram/diagram_url_upload.lambda_handler
+    events:
+      - http:
+          path: "diagram/url/upload"
+          method: post
+          cors: true
 
-    diagram_url_upload:
-        handler: diagram/diagram_url_upload.lambda_handler
-        events:
-        - http:
-            path: "diagram/url/upload"
-            method: post
-            cors: true
+  diagram_download:
+    handler: diagram/diagram_download.lambda_handler
+    events:
+      - http:
+          path: "diagram/download"
+          method: get
+          cors: true
 
-    diagram_download:
-        handler: diagram/diagram_download.lambda_handler
-        events:
-        - http:
-            path: "diagram/download"
-            method: get
-            cors: true
+  diagram_delete:
+    handler: diagram/diagram_delete.lambda_handler
+    events:
+      - http:
+          path: "diagram/delete"
+          method: post
+          cors: true
+
+  diagram_request:
+    handler: diagram/diagram_request.lambda_handler
+    events:
+      - http:
+          path: "diagram/get"
+          method: get
+          cors: true

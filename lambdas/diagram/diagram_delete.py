@@ -1,9 +1,11 @@
 import boto3
+import os
 
 def lambda_handler(event, context):
     """
     Lambda function to delete a diagram.
     """
+    bucket_name = os.environ['S3_BUCKET_NAME']
     diagram_id = event.get('diagram_id')
     tenant_id = event.get('tenant_id')
 
@@ -14,6 +16,7 @@ def lambda_handler(event, context):
         }
 
     dynamodb = boto3.resource('dynamodb')
+    s3 = boto3.client('s3')
     table = dynamodb.Table('diagram_table')
 
     # Delete the diagram
@@ -22,6 +25,10 @@ def lambda_handler(event, context):
             'tenant_id': tenant_id,
             'diagram_id': diagram_id
         }
+    )
+    s3.delete_object(
+        Bucket=bucket_name,
+        Key=f'{tenant_id}/{diagram_id}'
     )
 
     return {

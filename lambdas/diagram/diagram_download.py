@@ -1,40 +1,46 @@
 import boto3
-
+import os
+import json
 
 def lambda_handler(event, context):
     """
-    Lambda function to download a diagram file from S3.
-    :param event:
-    :param context:
-    :return:
+    Generate pre-signed URL for downloading diagram from S3
     """
+    params = event.get('queryStringParameters') or {}
+    tenant_id = params.get('tenant_id')
+    diagram_id = params.get('diagram_id')
 
-    diagram_id = event.get('diagram_id')
-    tenant_id = event.get('tenant_id')
-
-    if not diagram_id or not tenant_id:
+    if not tenant_id or not diagram_id:
         return {
             'statusCode': 400,
-            'body': 'Missing required parameters: diagram_id or tenant_id.'
+            'body': json.dumps({'error': 'Missing required parameters: tenant_id or diagram_id.'})
         }
 
+    s3_bucket = os.environ['S3_BUCKET_DIAGRAM']
+    file_key = f'{tenant_id}/{diagram_id}'
+
     s3 = boto3.client('s3')
-    bucket_name = 'your-bucket-name'  # Replace with your S3 bucket name
-    file_key = f'{tenant_id}/{diagram_id}.sql'  # Assuming the file is stored as SQL
 
     try:
-        response = s3.get_object(Bucket=bucket_name, Key=file_key)
-        file_content = response['Body'].read()
+        presigned_url = s3.generate_presigned_url(
+            ClientMethod='get_object',
+            Params={'Bucket': s3_bucket, 'Key': file_key},
+            ExpiresIn=3600  # 1 hour
+        )
 
         return {
             'statusCode': 200,
-            'body': file_content,
+            'body': json.dumps({
+                'download_url': presigned_url,
+                'file_key': file_key
+            }),
             'headers': {
-                'Content-Type': 'application/sql'
+                'Content-Type': 'application/json'
             }
         }
-    except s3.exceptions.NoSuchKey:
+
+    except Exception as e:
         return {
-            'statusCode': 404,
-            'body': f'Diagram {diagram_id} not found for tenant {tenant_id}.'
+            'statusCode': 500,
+            'body': json.dumps({'error': str(e)})
         }
