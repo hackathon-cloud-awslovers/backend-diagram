@@ -1,4 +1,4 @@
-FROM public.ecr.aws/lambda/nodejs18.x
+FROM public.ecr.aws/lambda/nodejs18.x:18
 
 # Instalar herramientas necesarias (tar, wget, unzip, etc.)
 RUN yum install -y tar gzip wget unzip && yum clean all
