@@ -2,7 +2,7 @@ import boto3
 import json
 import os
 
-def validate_token(token, tenant_id):
+def payload_token(token, tenant_id):
     if not token or not tenant_id:
         raise Exception('Token inválido o expirado')
 
@@ -27,7 +27,10 @@ def validate_token(token, tenant_id):
 
     result_payload = json.loads(response['Payload'].read().decode('utf-8'))
     print('Validate Lambda response:', result_payload)
+    return result_payload
 
+def validate_token(token, tenant_id):
+    result_payload = payload_token(token, tenant_id)
     if result_payload.get('statusCode') == 403:
         raise Exception('Token inválido o expirado')
 

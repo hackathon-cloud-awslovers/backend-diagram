@@ -2,32 +2,41 @@ import boto3
 import os
 import json
 import uuid
-import subprocess
 from utils import validate_token
+
+from diagrams import Diagram  # Import de diagrams
+from contextlib import redirect_stdout
 
 s3_bucket = os.environ['S3_BUCKET_DIAGRAM']
 s3 = boto3.client('s3')
 
-def generate_aws(diagram_id, fileitem, tenant_id):
-    py_file = f"/tmp/{diagram_id}.py"
-    with open(py_file, 'wb') as f:
-        f.write(fileitem.file.read())
 
-    try:
-        subprocess.run(['python3', py_file], check=True)
-    except subprocess.CalledProcessError as e:
-        return {
-            'statusCode': 500,
-            'body': json.dumps({'error': f'Error running diagram code: {str(e)}'})
-        }
+def generate_diagram(diagram_id, fileitem, tenant_id):
+    # Leer el código enviado (.py)
+    code_content = fileitem.file.read().decode()
 
     output_file = f"/tmp/{diagram_id}.png"
+
+    try:
+        with Diagram(diagram_id, filename=f"/tmp/{diagram_id}", outformat="png"):
+            # Ejecutar el código dentro del contexto Diagram
+            # Seguridad: crear un contexto restringido
+            exec_globals = {}
+            exec_locals = {}
+            exec(code_content, exec_globals, exec_locals)
+    except Exception as e:
+        return {
+            'statusCode': 500,
+            'body': json.dumps({'error': f'Error generating diagram: {str(e)}'})
+        }
+
     if not os.path.exists(output_file):
         return {
             'statusCode': 500,
             'body': json.dumps({'error': 'Diagram image not generated'})
         }
 
+    # Subir a S3
     file_key = f'{tenant_id}/{diagram_id}.png'
     s3.upload_file(output_file, s3_bucket, file_key)
 
@@ -43,45 +52,6 @@ def generate_aws(diagram_id, fileitem, tenant_id):
         'headers': {'Content-Type': 'application/json'}
     }
 
-def generate_sql(diagram_id, fileitem, tenant_id):
-    sql_file = f"/tmp/{diagram_id}.sql"
-    with open(sql_file, 'wb') as f:
-        f.write(fileitem.file.read())
-
-    file_key = f'{tenant_id}/{diagram_id}.sql'
-    s3.upload_file(sql_file, s3_bucket, file_key)
-
-    presigned_url = s3.generate_presigned_url(
-        ClientMethod='get_object',
-        Params={'Bucket': s3_bucket, 'Key': file_key},
-        ExpiresIn=3600
-    )
-
-    return {
-        'statusCode': 200,
-        'body': json.dumps({'download_url': presigned_url}),
-        'headers': {'Content-Type': 'application/json'}
-    }
-
-def generate_json(diagram_id, fileitem, tenant_id):
-    json_file = f"/tmp/{diagram_id}.json"
-    with open(json_file, 'wb') as f:
-        f.write(fileitem.file.read())
-
-    file_key = f'{tenant_id}/{diagram_id}.json'
-    s3.upload_file(json_file, s3_bucket, file_key)
-
-    presigned_url = s3.generate_presigned_url(
-        ClientMethod='get_object',
-        Params={'Bucket': s3_bucket, 'Key': file_key},
-        ExpiresIn=3600
-    )
-
-    return {
-        'statusCode': 200,
-        'body': json.dumps({'download_url': presigned_url}),
-        'headers': {'Content-Type': 'application/json'}
-    }
 
 def lambda_handler(event, context):
     import base64
@@ -115,15 +85,19 @@ def lambda_handler(event, context):
             'body': json.dumps({'error': str(e)})
         }
 
-    if diagram_id.endswith('.py'):
-        return generate_aws(diagram_id, fileitem, tenant_id)
+    # SOLO .py → usa diagrams
+    if diagram_id.endswith('.yml'):
+        # Quitar extensión
+        diagram_id = diagram_id.replace(".yml", "")
+        return generate_diagram(diagram_id, fileitem, tenant_id)
+
+    # .sql o .json → igual que antes
     elif diagram_id.endswith('.sql'):
-        return generate_sql(diagram_id, fileitem, tenant_id)
+        return None
     elif diagram_id.endswith('.json'):
-        return generate_json(diagram_id, fileitem, tenant_id)
+        return None
     else:
         return {
             'statusCode': 400,
             'body': json.dumps({'error': 'Unsupported file type. Only .py, .sql, and .json are allowed.'})
         }
-

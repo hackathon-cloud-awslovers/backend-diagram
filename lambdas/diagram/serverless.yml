@@ -9,6 +9,7 @@ provider:
   iam:
     role: arn:aws:iam::268852202968:role/LabRole
   environment:
+    TABLE_AUTH: ${self:custom.tableAuth}
     auth_lambda: ${self:custom.auth_lambda}
     TABLE_DIAGRAM: ${self:custom.tableDiagram}
     S3_BUCKET_DIAGRAM: ${self:custom.S3_BUCKET_DIAGRAM}
@@ -25,6 +26,7 @@ custom:
   tableDiagram: d_diagrams_${sls:stage}
   auth_lambda: hack-user-service-${sls:stage}-user_validat
   S3_BUCKET_DIAGRAM: d-diagrams-s3-${sls:stage}
+  tableAuth: d_auth_${sls:stage}
 
 resources:
   Resources:
@@ -57,6 +59,19 @@ resources:
               ExpirationInDays: 365
 
 functions:
+  diagram_create:
+    handler: diagram_create.lambda_handler
+    events:
+      - http:
+          path: "diagram/create"
+          method: post
+          cors: true
+          integration: lambda
+    package:
+      include:
+        - diagram_create.py
+        - utils.py
+
 
   diagram_upload:
     handler: diagram_upload.lambda_handler
