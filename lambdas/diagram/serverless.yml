@@ -24,7 +24,7 @@ provider:
 
 custom:
   tableDiagram: d_diagrams_${sls:stage}
-  auth_lambda: hack-user-service-${sls:stage}-user_validat
+  auth_lambda: hack-user-service-${sls:stage}-user_validate
   S3_BUCKET_DIAGRAM: d-diagrams-s3-${sls:stage}
   tableAuth: d_auth_${sls:stage}
 
@@ -115,7 +115,7 @@ functions:
     events:
       - http:
           path: "diagram/delete"
-          method: post
+          method: delete
           cors: true
           integration: lambda
     package:
@@ -126,7 +126,7 @@ functions:
     handler: diagram_request.lambda_handler
     events:
       - http:
-          path: "diagram/get"
+          path: "diagram/request"
           method: get
           cors: true
           integration: lambda

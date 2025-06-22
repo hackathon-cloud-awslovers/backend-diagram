@@ -16,11 +16,20 @@ def lambda_handler(event, context):
 
     tenant_id = body.get('tenant_id')
     diagram_id = body.get('diagram_id')
+    type = body.get('type')
 
-    if not tenant_id or not diagram_id:
+    if not tenant_id or not diagram_id or not type:
         return {
             'statusCode': 400,
-            'body': json.dumps({'error': 'Missing required parameters: tenant_id, diagram_id.'}),
+            'body': json.dumps({'error': 'Missing required parameters: tenant_id, diagram_id, type.'}),
+            'headers': {
+                'Content-Type': 'application/json'
+            }
+        }
+    if type not in ['aws', 'sql', 'json']:
+        return {
+            'statusCode': 400,
+            'body': {'error': 'Invalid type. Must be one of: aws, sql, json.'},
             'headers': {
                 'Content-Type': 'application/json'
             }
@@ -76,7 +85,8 @@ def lambda_handler(event, context):
         Item={
             'tenant_id': tenant_id,
             'diagram_id': diagram_id,
-            'user_id': user_id
+            'user_id': user_id,
+            'type': type,
         }
     )
 
