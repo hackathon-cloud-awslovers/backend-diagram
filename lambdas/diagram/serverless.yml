@@ -157,7 +157,7 @@ functions:
     memorySize: 1024
     timeout: 30
     events:
-      - http:
+      - httpApi:
           path: diagram/generate/d2
           method: post
           cors: true
