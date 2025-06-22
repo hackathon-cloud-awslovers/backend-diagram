@@ -1,7 +1,7 @@
 import boto3
 import os
 import json
-from utils import validate_token, load_body
+from utils import validate_token
 
 def lambda_handler(event, context):
     """
@@ -11,11 +11,11 @@ def lambda_handler(event, context):
     table_diagram_name = os.environ['TABLE_DIAGRAM']
     table_auth_name = os.environ['TABLE_AUTH']
 
-    # Parse body (usa GET con queryStringParameters)
-    body = load_body(event)
+    # For GET requests → queryStringParameters
+    params = event.get('queryStringParameters', {}) or {}
 
-    tenant_id = body.get('tenant_id')
-    diagram_id = body.get('diagram_id')
+    tenant_id = params.get('tenant_id')
+    diagram_id = params.get('diagram_id')
 
     if not tenant_id or not diagram_id:
         return {
