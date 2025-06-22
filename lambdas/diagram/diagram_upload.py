@@ -8,9 +8,12 @@ ALLOWED_EXTENSIONS = ('.sql', '.json', '.dbml')
 def lambda_handler(event, context):
     """
     Generate pre-signed URL for uploading diagram to S3 (auth required).
+    Must verify that diagram_id exists in diagram table.
     """
 
+    dynamodb = boto3.resource('dynamodb')
     s3_bucket = os.environ['S3_BUCKET_DIAGRAM']
+    table_diagram_name = os.environ['TABLE_DIAGRAM']
 
     # Parse body
     body = load_body(event)
@@ -62,8 +65,26 @@ def lambda_handler(event, context):
             }
         }
 
-    file_key = f'{tenant_id}/{diagram_id}'
+    # Verify if diagram_id exists in table
+    table_diagram = dynamodb.Table(table_diagram_name)
+    response = table_diagram.get_item(
+        Key={
+            'tenant_id': tenant_id,
+            'diagram_id': diagram_id
+        }
+    )
 
+    if 'Item' not in response:
+        return {
+            'statusCode': 404,
+            'body': json.dumps({'error': f'Diagram {diagram_id} not found for tenant {tenant_id}. Please create it first.'}),
+            'headers': {
+                'Content-Type': 'application/json'
+            }
+        }
+
+    # Generate pre-signed URL
+    file_key = f'{tenant_id}/{diagram_id}'
     s3 = boto3.client('s3')
 
     try:
