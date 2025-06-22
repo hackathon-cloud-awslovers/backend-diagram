@@ -3,6 +3,7 @@ from datetime import timedelta
 import boto3
 import bcrypt
 import os
+import json
 
 # Expire time
 expire_time = timedelta(hours=5)
@@ -14,9 +15,11 @@ def lambda_handler(event, context):
     table_auth_name = os.environ['TABLE_AUTH']
     table_user_name = os.environ['TABLE_USER']
 
-    user_id = event.get('user_id')
-    tenant_id = event.get('tenant_id')
-    password = event.get('password')
+    body = json.loads(event.get('body', '{}'))
+
+    user_id = body.get('user_id')
+    tenant_id = body.get('tenant_id')
+    password = body.get('password')
     if not user_id or not tenant_id or not password:
         return {
             'statusCode': 400,
