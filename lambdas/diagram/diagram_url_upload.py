@@ -2,14 +2,19 @@ import boto3
 import os
 import json
 import requests
+from utils import validate_token, load_body
 
 ALLOWED_EXTENSIONS = ('.sql', '.json', '.dbml')
 
 def lambda_handler(event, context):
     """
-    Lambda function to download a file from external URL and upload to S3
+    Lambda function to download a file from external URL and upload to S3, with token auth.
     """
-    body = json.loads(event.get('body', '{}'))
+
+    s3_bucket = os.environ['S3_BUCKET_DIAGRAM']
+
+    # Parse body
+    body = load_body(event)
 
     tenant_id = body.get('tenant_id')
     diagram_id = body.get('diagram_id')
@@ -18,16 +23,46 @@ def lambda_handler(event, context):
     if not tenant_id or not diagram_id or not url:
         return {
             'statusCode': 400,
-            'body': json.dumps({'error': 'Missing required parameters: tenant_id, diagram_id, url.'})
+            'body': json.dumps({'error': 'Missing required parameters: tenant_id, diagram_id, url.'}),
+            'headers': {
+                'Content-Type': 'application/json'
+            }
         }
 
     if not diagram_id.endswith(ALLOWED_EXTENSIONS):
         return {
             'statusCode': 400,
-            'body': json.dumps({'error': f'Invalid file extension. Allowed extensions are: {ALLOWED_EXTENSIONS}'})
+            'body': json.dumps({'error': f'Invalid file extension. Allowed extensions are: {ALLOWED_EXTENSIONS}'}),
+            'headers': {
+                'Content-Type': 'application/json'
+            }
         }
 
-    s3_bucket = os.environ['S3_BUCKET_DIAGRAM']
+    # Read Authorization header
+    auth_header = event.get('headers', {}).get('Authorization', '')
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return {
+            'statusCode': 400,
+            'body': json.dumps({'error': 'Missing or invalid Authorization header.'}),
+            'headers': {
+                'Content-Type': 'application/json'
+            }
+        }
+
+    token = auth_header.split(' ')[1]
+
+    # Validate token
+    try:
+        validate_token(token, tenant_id)
+    except Exception as e:
+        return {
+            'statusCode': 403,
+            'body': json.dumps({'error': str(e)}),
+            'headers': {
+                'Content-Type': 'application/json'
+            }
+        }
+
     file_key = f'{tenant_id}/{diagram_id}'
 
     try:
@@ -54,5 +89,8 @@ def lambda_handler(event, context):
     except Exception as e:
         return {
             'statusCode': 500,
-            'body': json.dumps({'error': str(e)})
+            'body': json.dumps({'error': str(e)}),
+            'headers': {
+                'Content-Type': 'application/json'
+            }
         }
