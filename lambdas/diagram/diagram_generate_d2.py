@@ -77,7 +77,7 @@ def lambda_handler(event, context):
     try:
         # Call D2 binary to generate PNG
         result = subprocess.run(
-            ["/opt/bin/d2", tmp_d2_file, tmp_output_file],
+            ["/opt/bin/d2-v0.7.0/bin/d2", tmp_d2_file, tmp_output_file],
             check=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
