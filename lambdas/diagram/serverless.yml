@@ -1,5 +1,5 @@
 org: salvadordonayre
-service: hack-diagram-service
+service: hack-diagram-service2
 
 provider:
   name: aws
