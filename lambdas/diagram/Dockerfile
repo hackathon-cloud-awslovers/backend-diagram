@@ -8,8 +8,8 @@ ENV D2_VERSION=v0.7.0
 
 RUN wget https://github.com/terrastruct/d2/releases/download/${D2_VERSION}/d2-${D2_VERSION}-linux-amd64.tar.gz -O /tmp/d2.tar.gz \
     && mkdir -p /opt/bin \
-    && tar -xzf /tmp/d2.tar.gz -C /opt/bin --strip-components=1 \
-    && chmod +x /opt/bin/d2
+    && tar -xzf /tmp/d2.tar.gz -C /opt/bin \
+    && chmod +x /d2-v0.7.0/bin/d2
 
 # Agregar D2 al PATH
 ENV PATH="/opt/bin:${PATH}"
