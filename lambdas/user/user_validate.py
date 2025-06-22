@@ -49,6 +49,7 @@ def lambda_handler(event, context):
         }
 
     item = response['Item']
+    print('Item:', item)
 
     # Extra check tenant_id
     if item.get('tenant_id') != tenant_id:
