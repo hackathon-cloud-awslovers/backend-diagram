@@ -1,7 +1,7 @@
 FROM public.ecr.aws/lambda/python:3.9
 
 # Install system dependencies
-RUN yum install -y graphviz unzip wget taret
+RUN yum install -y graphviz unzip wget tar
 
 # Install D2 binary (update version here!)
 ENV D2_VERSION=v0.8.4
