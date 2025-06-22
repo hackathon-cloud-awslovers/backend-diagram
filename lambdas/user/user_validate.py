@@ -22,7 +22,7 @@ def lambda_handler(event, context):
 
     print('Event:', event)
 
-    body = load_body(event)
+    body = json.loads(event.get('body', '{}'))
 
     token = body.get('token')
     tenant_id = body.get('tenant_id')
