@@ -24,7 +24,7 @@ provider:
 
 custom:
   tableDiagram: d_diagrams_${sls:stage}
-  auth_lambda: hack-user-service-${sls:stage}-user_validat
+  auth_lambda: hack-user-service-${sls:stage}-user_validate
   S3_BUCKET_DIAGRAM: d-diagrams-s3-${sls:stage}
   tableAuth: d_auth_${sls:stage}
 
