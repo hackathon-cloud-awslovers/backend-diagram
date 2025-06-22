@@ -7,7 +7,7 @@ provider:
   region: us-east-1
   stage: dev
   iam:
-    role: arn:aws:iam::107956752347:role/LabRole
+    role: arn:aws:iam::268852202968:role/LabRole
   environment:
     auth_lambda: ${self:custom.auth_lambda}
     TABLE_DIAGRAM: ${self:custom.tableDiagram}
