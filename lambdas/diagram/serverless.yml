@@ -115,7 +115,7 @@ functions:
     events:
       - http:
           path: "diagram/delete"
-          method: post
+          method: delete
           cors: true
           integration: lambda
     package:
