@@ -160,7 +160,3 @@ functions:
       - httpApi:
           path: diagram/generate/d2
           method: post
-          cors: true
-          request:
-            mediaTypes:
-              - multipart/form-data
