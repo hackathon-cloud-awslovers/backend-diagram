@@ -1,25 +1,25 @@
-FROM public.ecr.aws/lambda/nodejs18.x:18
+FROM public.ecr.aws/lambda/python:3.9
 
-# Instalar herramientas necesarias (tar, wget, unzip, etc.)
-RUN yum install -y tar gzip wget unzip && yum clean all
+# Instalar dependencias del sistema
+RUN yum install -y graphviz unzip wget tar gzip && yum clean all
 
-# Variables de versión de D2
+# Instalar D2 binary (puedes cambiar la versión fácilmente)
 ENV D2_VERSION=v0.8.4
 
-# Descargar D2 y preparar en /opt/bin
 RUN wget https://github.com/terrastruct/d2/releases/download/${D2_VERSION}/d2-${D2_VERSION}-linux-amd64.tar.gz -O /tmp/d2.tar.gz \
     && mkdir -p /opt/bin \
     && tar -xzf /tmp/d2.tar.gz -C /opt/bin \
     && chmod +x /opt/bin/d2
 
-# Agregar /opt/bin al PATH
+# Agregar D2 al PATH
 ENV PATH="/opt/bin:${PATH}"
 
-# Copiar código de la Lambda
-COPY . ${LAMBDA_TASK_ROOT}
+# Copiar código de la app (ajusta si tienes requirements.txt)
+COPY diagram_generate_d2.py .
+COPY utils.py .
 
-# Instalar dependencias (si usas npm)
-RUN npm install
+# Instalar requirements si es necesario
+# RUN pip install -r requirements.txt --target "${LAMBDA_TASK_ROOT}"
 
-# Comando por defecto
-CMD [ "index.handler" ]
+# Comando de entrada de Lambda
+CMD ["diagram_generate_d2.lambda_handler"]
