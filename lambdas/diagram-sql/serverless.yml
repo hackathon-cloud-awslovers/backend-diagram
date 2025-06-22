@@ -1,0 +1,19 @@
+# serverless.yml
+service: sql-er-diagrams
+
+provider:
+  name: aws
+  runtime: python3.9
+  region: us-east-1
+  lambdaHashingVersion: 20201221
+
+functions:
+  generateERD:
+    handler: diagram_build.lambda_handler
+    events:
+      - http:
+          path: generate-sql-er
+          method: post
+          cors: true
+    memorySize: 512
+    timeout: 10
