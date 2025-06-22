@@ -1,19 +1,36 @@
-# serverless.yml
-service: sql-er-diagrams
+org: salvadordonayre
+service: hack-diagram-service2
 
 provider:
   name: aws
   runtime: python3.9
   region: us-east-1
+  stage: dev
   lambdaHashingVersion: 20201221
+  iam:
+    role: arn:aws:iam::268852202968:role/LabRole
+
+plugins:
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    dockerizePip: true
+
+defaults:
+  timeout: 30
+  memorySize: 512
 
 functions:
-  generateERD:
+  generateSqlEr:
     handler: diagram_build.lambda_handler
     events:
       - http:
           path: generate-sql-er
           method: post
           cors: true
-    memorySize: 512
-    timeout: 10
+
+package:
+  exclude:
+    - node_modules/**
+    - tests/**
