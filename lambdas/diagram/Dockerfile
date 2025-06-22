@@ -9,7 +9,7 @@ ENV D2_VERSION=v0.7.0
 # Descargar y descomprimir D2
 RUN wget https://github.com/terrastruct/d2/releases/download/${D2_VERSION}/d2-${D2_VERSION}-linux-amd64.tar.gz -O /tmp/d2.tar.gz \
     && mkdir -p /opt/bin \
-    && tar -xzf /tmp/d2.tar.gz -C /opt/bin --strip-components=2 d2-${D2_VERSION}-linux-amd64/bin/d2 \
+    && tar -xzf /tmp/d2.tar.gz -C /opt/bin --strip-components=2 d2-${D2_VERSION}/bin/d2 \
     && chmod +x /opt/bin/d2
 
 # Asegurar que D2 está en PATH
