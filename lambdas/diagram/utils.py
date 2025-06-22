@@ -9,6 +9,7 @@ def payload_token(token, tenant_id):
     lambda_client = boto3.client('lambda')
 
     payload = {
+        "token": token,
         'tenant_id': tenant_id
     }
 
@@ -18,9 +19,6 @@ def payload_token(token, tenant_id):
         FunctionName=validate_lambda_name,
         InvocationType='RequestResponse',
         Payload=json.dumps({
-            'headers': {
-                'Authorization': f'Bearer {token}'
-            },
             'body': json.dumps(payload)
         }).encode('utf-8')
     )
