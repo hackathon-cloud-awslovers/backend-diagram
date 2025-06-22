@@ -8,6 +8,15 @@ import json
 # Expire time
 expire_time = timedelta(hours=5)
 
+def load_body(event):
+    if 'body' not in event:
+        return event
+
+    if isinstance(event["body"], dict):
+        return event['body']
+    else:
+        return json.loads(event['body'])
+
 def hash_password(password):
     return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
 
@@ -15,7 +24,7 @@ def lambda_handler(event, context):
     table_auth_name = os.environ['TABLE_AUTH']
     table_user_name = os.environ['TABLE_USER']
 
-    body = json.loads(event.get('body', '{}'))
+    body = load_body(event)
 
     user_id = body.get('user_id')
     tenant_id = body.get('tenant_id')
