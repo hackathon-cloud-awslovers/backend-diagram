@@ -83,10 +83,10 @@ def lambda_handler(event, context):
     # Devolver token en body + header
     return {
         'statusCode': 200,
-        'body': json.dumps({
+        'body':{
             'token': token,
             'expires_at': expiration_time
-        }),
+        },
         'headers': {
             'Content-Type': 'application/json',
             'Authorization': f'Bearer {token}'
