@@ -21,6 +21,10 @@ provider:
         - s3:GetObject
         - s3:DeleteObject
       Resource: arn:aws:s3:::${self:custom.S3_BUCKET_DIAGRAM}/*
+  ecr:
+    images:
+      diagram_generate_d2_image:
+        path: .   # build Dockerfile in current directory
 
 custom:
   tableDiagram: d_diagrams_${sls:stage}
@@ -146,3 +150,14 @@ functions:
       include:
         - diagram_generate.py
         - utils.py
+
+  diagram_generate_d2:
+    image:
+      name: diagram_generate_d2_image
+    memorySize: 1024
+    timeout: 30
+    events:
+      - http:
+          path: diagram/generate/d2
+          method: post
+          cors: true
