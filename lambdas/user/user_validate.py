@@ -4,16 +4,13 @@ import json
 import os
 
 def load_body(event):
-    """
-    Helper: Load body from event (safe for API Gateway)
-    """
-    if event.get('body'):
-        try:
-            return json.loads(event['body'])
-        except:
-            return {}
+    if 'body' not in event:
+        return event
+
+    if isinstance(event["body"], dict):
+        return event['body']
     else:
-        return event.get('queryStringParameters', {}) or {}
+        return json.loads(event['body'])
 
 def lambda_handler(event, context):
     """
@@ -22,7 +19,7 @@ def lambda_handler(event, context):
 
     print('Event:', event)
 
-    body = json.loads(event.get('body', '{}'))
+    body = load_body(event)
 
     token = body.get('token')
     tenant_id = body.get('tenant_id')
