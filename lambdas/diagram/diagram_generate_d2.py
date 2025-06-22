@@ -4,7 +4,7 @@ import json
 import base64
 import subprocess
 import uuid
-from utils import validate_token
+from utils import validate_token, load_body
 
 def lambda_handler(event, context):
     """
@@ -26,7 +26,7 @@ def lambda_handler(event, context):
 
     # Parse JSON body
     try:
-        body = json.loads(event['body'])
+        body = load_body(event)
     except Exception:
         return {
             'statusCode': 400,
