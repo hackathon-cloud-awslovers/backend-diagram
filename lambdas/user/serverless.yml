@@ -1,5 +1,5 @@
 org: salvadordonayre
-service: hack-user-service
+service: hack-user2-service
 
 plugins:
   - serverless-python-requirements
