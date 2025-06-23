@@ -6,9 +6,10 @@ provider:
   runtime: python3.9
   region: us-east-1
   stage: dev
-  lambdaHashingVersion: 20201221
   iam:
     role: arn:aws:iam::268852202968:role/LabRole
+  timeout: 30           # 
+  memorySize: 512       # 
 
 plugins:
   - serverless-python-requirements
@@ -16,10 +17,6 @@ plugins:
 custom:
   pythonRequirements:
     dockerizePip: true
-
-defaults:
-  timeout: 30
-  memorySize: 512
 
 functions:
   generateSqlEr:
