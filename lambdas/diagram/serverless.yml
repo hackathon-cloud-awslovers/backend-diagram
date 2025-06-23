@@ -8,21 +8,157 @@ provider:
   stage: dev
   iam:
     role: arn:aws:iam::268852202968:role/LabRole
-  timeout: 30           # 
-  memorySize: 512       # 
+  environment:
+    TABLE_AUTH: ${self:custom.tableAuth}
+    auth_lambda: ${self:custom.auth_lambda}
+    TABLE_DIAGRAM: ${self:custom.tableDiagram}
+    S3_BUCKET_DIAGRAM: ${self:custom.S3_BUCKET_DIAGRAM}
 
-plugins:
-  - serverless-python-requirements
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - s3:PutObject
+        - s3:GetObject
+        - s3:DeleteObject
+      Resource: arn:aws:s3:::${self:custom.S3_BUCKET_DIAGRAM}/*
+  ecr:
+    images:
+      diagram_generate_d2_image:
+        path: .   # build Dockerfile in current directory
 
 custom:
-  pythonRequirements:
-    dockerizePip: true
+  tableDiagram: d_diagrams_${sls:stage}
+  auth_lambda: hack-user-service-${sls:stage}-user_validate
+  S3_BUCKET_DIAGRAM: d-diagrams-s3-${sls:stage}
+  tableAuth: d_auth_${sls:stage}
+
+resources:
+  Resources:
+    DiagramTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.tableDiagram}
+        AttributeDefinitions:
+          - AttributeName: tenant_id
+            AttributeType: S
+          - AttributeName: diagram_id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: tenant_id
+            KeyType: HASH
+          - AttributeName: diagram_id
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+
+    DiagramS3Bucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom.S3_BUCKET_DIAGRAM}
+        VersioningConfiguration:
+          Status: Enabled
+        LifecycleConfiguration:
+          Rules:
+            - Id: "ExpireOldDiagrams"
+              Status: Enabled
+              ExpirationInDays: 365
 
 functions:
-  generateSqlEr:
-    handler: diagram_build.lambda_handler
+  diagram_create:
+    handler: diagram_create.lambda_handler
     events:
       - http:
-          path: generate-sql-er
+          path: "diagram/create"
           method: post
           cors: true
+          integration: lambda
+    package:
+      include:
+        - diagram_create.py
+        - utils.py
+
+
+  diagram_upload:
+    handler: diagram_upload.lambda_handler
+    events:
+      - http:
+          path: "diagram/upload"
+          method: post
+          cors: true
+          integration: lambda
+    package:
+      include:
+        - diagram_upload.py
+        - utils.py
+
+  diagram_url_upload:
+    handler: diagram_url_upload.lambda_handler
+    events:
+      - http:
+          path: "diagram/url/upload"
+          method: post
+          cors: true
+          integration: lambda
+    package:
+      include:
+        - diagram_url_upload.py
+        - utils.py
+  diagram_download:
+    handler: diagram_download.lambda_handler
+    events:
+      - http:
+          path: "diagram/download"
+          method: get
+          cors: true
+          integration: lambda
+    package:
+      include:
+        - diagram_download.py
+        - utils.py
+  diagram_delete:
+    handler: diagram_delete.lambda_handler
+    events:
+      - http:
+          path: "diagram/delete"
+          method: delete
+          cors: true
+          integration: lambda
+    package:
+      include:
+        - diagram_delete.py
+        - utils.py
+  diagram_request:
+    handler: diagram_request.lambda_handler
+    events:
+      - http:
+          path: "diagram/request"
+          method: get
+          cors: true
+          integration: lambda
+    package:
+      include:
+        - diagram_request.py
+        - utils.py
+  diagram_generate:
+    handler: diagram_generate.lambda_handler
+    events:
+      - http:
+          path: "diagram/generate"
+          method: post
+          cors: true
+          integration: lambda
+    package:
+      include:
+        - diagram_generate.py
+        - utils.py
+
+  diagram_generate_d2:
+    image:
+      name: diagram_generate_d2_image
+    memorySize: 1024
+    timeout: 30
+    events:
+      - http:
+          path: diagram/generate/d2
+          method: post
+          cors: true
+          integration: lambda
