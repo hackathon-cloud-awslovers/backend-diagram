@@ -29,8 +29,3 @@ functions:
           path: generate-sql-er
           method: post
           cors: true
-
-package:
-  exclude:
-    - node_modules/**
-    - tests/**
